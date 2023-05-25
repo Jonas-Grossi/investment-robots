@@ -1,0 +1,39 @@
+Input
+MediaCurta(8);
+MediaLonga(80);
+Alvo(1.61);
+NumContrato(1);
+var
+MediaC,MediaL,StopC,StopV : Float;
+
+inicio
+MediaC := Media(MediaCurta,Fechamento);
+MediaL := Media(MediaLonga,Fechamento);
+
+Se (IsBought) entao
+
+Inicio
+SellToCoverLimit(BuyPrice+((BuyPrice-StopC)*Alvo),NumContrato);//Alvo
+
+SellToCoverStop(StopC,StopC-500,NumContrato);//stop
+Fim;
+Se(Isold) entao
+Inicio
+BuyToCoverLimit(SellPrice-((SellPrice-StopC)*Alvo),NumContrato);//Alvo
+BuyToCoverStop(StopV,StopV-500,NumContrato);//stop
+fim;
+Se(Hasposition = False) entao
+Inicio
+Se(Minima > Minima[1] e (Minima[1] < Minima[2] e (Fechamento > Fechament[1]) e (fechamento <Maxima[2]) entao
+Inicio
+BuyStop(Maxima+5,Maxima+5+15,NumContrato);
+StopC := Minima-5;
+Fim;
+
+Se(Maxima < Maxima[1] e (Maxima[1] > Maxima[2] e (Fechamento < Fechament[1]) e (fechamento > Minima[2]) entao
+Inicio
+SellShortStop(Minima-5,Minima+5-15,NumContrato);
+StopV := Maxima+5;
+Fim;
+fim;
+fim;
