@@ -1,0 +1,48 @@
+//vale=12,bbas3=15,petr4=12
+Input
+  NumContrato(100);
+  Alvo(2.0);
+var
+  sinalCompra,sinalVenda : boolean;
+  media8,media80 : float;
+  stopLoss,startTrade : float;
+
+begin
+  media8 := MediaExp(8,close);
+  media80 := MediaExp(80,close);
+ if not hasPosition then
+ begin
+ //if (Low > Low[1]) and (High < High[1]) and (media8 > media80) and (media8 > media8[1]) and (media80 > media80[1]) then
+ if (Low > Low[1]) and (High < High[1]) and (media8 > media80) then
+ begin
+
+ startTrade := High + 1 * MinPriceIncrement;
+ stopLoss := Lowest(Low,2)- 1* MinPriceIncrement;
+ BuyStop(startTrade,startTrade);
+  PaintBar(clBlue);
+  PlotText("Compra",clBlue,3,10,Low - 5 * MinPriceIncrement);
+ end;
+ //if (Low > Low[1]) and (High < High[1]) and (media8 < media80) and (media8 < media8[1]) and (media80 < media80[1]) then
+ if (Low > Low[1]) and (High < High[1]) and (media8 < media80)then
+  begin
+  stopLoss := Highest(High,2) + 1* MinPriceIncrement;
+  startTrade := low - 1 * MinPriceIncrement;
+  SellShortStop(startTrade,startTrade);
+  PaintBar(clRed);
+  PlotText("Venda",clRed,3,10,Low + 50 * MinPriceIncrement);
+ end;
+ end;
+  if isBought then
+  begin
+     // SellToCoverLimit(startTrade+((startTrade-stopLoss) *Alvo),NumContrato);
+   SellToCoverLimit(BuyPrice+((BuyPrice-stopLoss)*Alvo),NumContrato);
+   SellToCoverStop(stopLoss,stopLoss);  
+  
+  end;
+  if isSold then
+        begin
+         BuyToCoverLimit(SellPrice+((SellPrice-stopLoss)*Alvo),NumContrato);         
+         BuyToCoverStop(stopLoss,stopLoss);
+        end;
+
+end;

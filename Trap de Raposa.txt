@@ -1,0 +1,61 @@
+//petr4=15,vale3=12,lren3=15
+Input
+  NumContrato(100);
+  Alvo(1.61);
+var
+  media8,media80               : float;
+  stopLoss,startTrade          : float;
+begin
+  media8 := MediaExp(8,close);
+  media80 := MediaExp(80,close);
+  if not hasPosition then
+    begin
+      if ((media8 > media80) and (Low[1] > media8) and (Low[2] > media8)) and (Low < media8) then
+        begin
+          stopLoss := Low - 1 * MinPriceIncrement;
+          startTrade := High + 1 * MinPriceIncrement;
+          BuyStop(startTrade,startTrade);
+          PaintBar(clBlue);
+          PlotText("Compra",clBlue,3,10,Low - 5 * MinPriceIncrement);
+        end;
+         if ((media8 > media80) and (Low[1] > media80) and (Low[2] > media80)) and (Low < media80) then
+        begin
+          stopLoss := Low - 1 * MinPriceIncrement;
+          startTrade := High + 1 * MinPriceIncrement;
+          BuyStop(startTrade,startTrade);
+          PaintBar(clyellow);
+          PlotText("Compra",clyellow,3,10,Low - 5 * MinPriceIncrement); 
+        
+        
+        end;
+
+      if ((media8 < media80) and (High[1] < media8) and (High[2] < media8)) and (High > media8) then
+        begin
+          stopLoss := High + 1 * MinPriceIncrement;
+          startTrade := Low - 1 * MinPriceIncrement;
+          SellShortStop(startTrade,startTrade);
+          PaintBar(clRed);
+          PlotText("Venda",clRed,3,10,Low - 5 * MinPriceIncrement);
+        end;
+        
+        if ((media8 < media80) and (High[1] < media80) and (High[2] < media80)) and (High > media80) then
+        begin
+          stopLoss := High + 1 * MinPriceIncrement;
+          startTrade := Low - 1 * MinPriceIncrement;
+          SellShortStop(startTrade,startTrade);
+          PaintBar(clPurple);
+          PlotText("Venda",clPurple,3,10,Low - 5 * MinPriceIncrement);
+          end;
+    end;                                               
+  if isBought then
+    begin
+      SellToCoverLimit(BuyPrice + ((BuyPrice - stopLoss) * Alvo),NumContrato);
+      SellToCoverStop(stopLoss,stopLoss);
+    end;
+  if IsSold then
+    begin
+     
+      BuyToCoverLimit(SellPrice+((SellPrice-stopLoss)*Alvo),NumContrato);
+      BuyToCoverStop(stopLoss,stopLoss);
+    end;
+end;

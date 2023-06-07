@@ -1,0 +1,57 @@
+//petr4=5,vale3=5
+Input
+  NumContrato(100);
+  Alvo(3.0);
+var
+  banda1,banda2       : float;
+  stopLoss,startTrade : float;
+begin
+  banda1 := BollingerBands(2.0,20,1)|0|;
+  banda2 := BollingerBands(2.0,20,1)|1|;
+  if not hasPosition then
+    begin
+      //venda
+      if ((close[1] > banda1) and (close < banda1)) then
+        begin
+          PaintBar(clRed);
+          PlotText("Venda",clRed,3,10,Low - 5 * MinPriceIncrement);
+          startTrade := Low - 1 * MinPriceIncrement;
+          SellShortStop(startTrade,startTrade);
+          if (High[1] > High) then
+            begin
+              stopLoss := Highest(High,1) + 1 * MinPriceIncrement;
+            end
+          else 
+            begin
+              stopLoss := Highest(High,0) + 1 * MinPriceIncrement;
+            end;
+        end;
+      //Compra
+      if ((close[1] < banda2) and (close > banda2)) then
+        begin
+          PaintBar(clGreen);
+          PlotText("Compra",clGreen,3,10,Low - 5 * MinPriceIncrement);
+          startTrade := High + 1 * MinPriceIncrement;
+          BuyStop(startTrade,startTrade);
+          if (Low[1] < Low) then
+            begin
+              stopLoss := Lowest(Low,1) - 1 * MinPriceIncrement;
+            end
+          else 
+            begin
+              stopLoss := Lowest(Low,0) - 1 * MinPriceIncrement;
+            end;
+        end;
+    end;
+  if isBought then
+    begin
+      SellToCoverLimit(BuyPrice + ((BuyPrice - stopLoss) * Alvo),NumContrato);
+      SellToCoverStop(stopLoss,stopLoss);
+    end;
+   
+  if isSold then
+    begin
+      BuyToCoverLimit(SellPrice + ((SellPrice - stopLoss) * Alvo),NumContrato);
+      BuyToCoverStop(stopLoss,stopLoss);
+    end;
+end;-

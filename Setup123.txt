@@ -1,0 +1,91 @@
+//CONSERTAR ERRO DO PAVIO
+//petr4=12,bbdc4=5,9,10,vale3=10,lren3=5
+Input
+  NumContrato(100);
+  Alvo(3.0);
+  
+  //declaração de variaveis
+var
+  sinalCompra123,sinalVenda123 : boolean;
+  media8,media80               : float;
+  stopLoss,startTrade          : float;
+  //instanciando
+  //1
+begin
+  sinalCompra123 := false;
+  sinalVenda123 := false;
+  media8 := MediaExp(8,close);
+  media80 := MediaExp(80,close);             
+  //se nao esta posicionado
+  if not hasPosition then
+    begin
+      //identificação Padrão 123 compra
+      if (Low > Low[1]) and (Low[1] < Low[2]) and (media8 > media80) and (media8 > media8[1]) and (media80 > media80[1]) then
+      // if (Low > Low[1]) and (Low[1] < Low[2]) and (media8 > media80) then
+        begin
+          sinalCompra123 := true;
+          stopLoss := Lowest(Low,2)- 1* MinPriceIncrement;
+          startTrade := Highest(high,1)+1 * MinPriceIncrement;
+          PaintBar(clBlue);
+          PlotText("Compra",clBlue,3,10,Low - 5 * MinPriceIncrement);
+        end;
+      //identificação Padrão 123 venda
+      if (High < High[1]) and (High[1] > High[2]) and (media8 < media80) and (media8 < media8[1]) and (media80 < media80[1]) then
+     // if (High < High[1]) and (High[1] > High[2]) and (media8 < media80) then
+        begin
+          sinalVenda123 := true;
+          stopLoss := Highest(High,2)+ 1* MinPriceIncrement;
+          startTrade := Lowest(Low,1)- 1* MinPriceIncrement;
+          PaintBar(clRed);
+          PlotText("Venda",clRed,3,10,High + 5 * MinPriceIncrement);
+        end;
+    end;
+
+  //CONDIÇÃO PARA DAYTRADE
+  if (GraphicInterval = itMinute) or (GraphicInterval = itSecond) then
+    begin
+      if sinalCompra123 then
+        begin
+          BuyStop(startTrade,startTrade);
+          
+        end;
+      if isBought then
+        begin
+         SellToCoverLimit((BuyPrice+(BuyPrice-stopLoss)*Alvo),NumContrato);
+         SellToCoverStop(stopLoss,stopLoss);         
+        end;
+    end;
+  //Venda                                                              
+      if sinalVenda123 then
+     begin
+    SellShortStop(startTrade,startTrade);
+  //  
+   end;
+    if isSold then
+        begin
+         BuyToCoverLimit(SellPrice+((SellPrice-stopLoss)*Alvo),NumContrato);         
+         BuyToCoverStop(stopLoss,stopLoss);
+        end;
+ end;
+ //CONDIÇÃO PARA SWING TRADE
+  else
+  begin
+  if sinalCompra123[1] then
+   BuyStop(Highest[1](high[1],1)+5,Highest[1](high[1],1)+5);
+  //Venda
+  if sinalVenda123 then
+  SellShortStop(Lowest(Low,1)-5,Lowest(Low,1)-5);
+  end;
+  //Gestão das posiçoes
+  
+     if isBought then
+        begin
+         SellToCoverLimit(BuyPrice+((BuyPrice-(Lowest(Low,2)-5))*Alvo),NumContrato);
+         SellToCoverStop(Lowest(Low,2)-5,Lowest(Low,2)-5);         
+        end;
+  if IsSold then
+  begin
+  BuyToCoverLimit(SellPrice+((SellPrice-(Highest(High,2)+5))*Alvo),NumContrato);
+  BuyToCoverStop(Highest(High,2)+5,Highest(High,2)+5);
+  
+end;

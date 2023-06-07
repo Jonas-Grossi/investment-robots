@@ -1,0 +1,63 @@
+//petr4=5,hapv3=10,5,wuinwinfu
+Input
+  NumContrato(100);
+  
+
+ var
+ kelt,minAtualVenda,minAnteriorVenda,minAtualCompra,minAnteriorCompra,startTrade,stopLoss : float;
+
+ 
+begin
+
+ if (GraphicInterval = itMinute) or (GraphicInterval = itDaily) then
+    begin  
+  if not hasPosition then
+begin                                                
+  minAtualCompra := Lowest(Low,1);
+  minAnteriorCompra :=Lowest(Low,2);
+  kelt := KeltnerCh(0.5,8, 8);
+   
+  if(minAtualCompra < minAnteriorCompra)then
+  begin  
+  startTrade := minAtualCompra;
+  BuyStop(startTrade,startTrade);
+  PaintBar(clGreen);
+  PlotText("Compra",clGreen,3,10,Low - 5 * MinPriceIncrement);
+      end;
+ if(minAtualCompra >= minAnteriorCompra)then 
+       begin
+       startTrade := minAnteriorCompra;
+       BuyStop(startTrade,startTrade);
+        PaintBar(clGreen);
+        PlotText("Compra",clGreen,3,10,Low - 5 * MinPriceIncrement);
+      end;
+  
+     end;
+  
+  if(isBought) then
+  
+  minAtualVenda := Highest(High,1);
+  minAnteriorVenda := Highest(High,2);
+  begin
+    
+     if(minAtualVenda >= minAnteriorVenda)then
+     begin
+       stopLoss := minAtualVenda;     
+       SellToCoverLimit(stopLoss);
+       PaintBar(clRed);
+       PlotText("Venda",clRed,3,10,High + 5 * MinPriceIncrement);
+      end;
+        if(minAtualVenda < minAnteriorVenda)then
+     begin
+       stopLoss := minAnteriorVenda;     
+       SellToCoverLimit(stopLoss);
+     // PaintBar(clRed);
+     // PlotText("Venda",clRed,3,10,High + 5 * MinPriceIncrement);
+      end;
+      
+  end;
+
+
+   
+end;
+end;
